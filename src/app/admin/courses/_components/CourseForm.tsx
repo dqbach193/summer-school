@@ -31,6 +31,10 @@ export function CourseForm(){
                 <Textarea id="description" name="description" required></Textarea>
             </div>
             <div className="space-y-2">
+                <Label htmlFor="image">File</Label>
+                <Input type="file" id="file" name="file" required></Input>
+            </div>
+            <div className="space-y-2">
                 <Label htmlFor="image">Image</Label>
                 <Input type="file" id="image" name="image" required></Input>
             </div>
