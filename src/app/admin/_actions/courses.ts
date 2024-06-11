@@ -20,7 +20,7 @@ const addSchema = z.object({
     image: imageSchema.refine(file => file.size > 0, "Required")
 })
 
-export async function addCourse(formData: FormData){
+export async function addCourse(prevState: unknown, formData: FormData){
     const result = addSchema.safeParse(Object.fromEntries(formData.entries()))
     if(result.success === false){
         return result.error.formErrors.fieldErrors
@@ -38,11 +38,12 @@ export async function addCourse(formData: FormData){
     
     await db.course.create({
         data: {
-          name: data.name,
-          description: data.description,
-          priceInVND: data.priceInVND,
-          filePath,
-          imagePath,
+            isAvailableForPurchase: false,
+            name: data.name,
+            description: data.description,
+            priceInVND: data.priceInVND,
+            filePath,
+            imagePath,
         },
       })
 
