@@ -5,7 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import db from "@/db/db";
 import { CheckCircle2, MoreVertical, XCircle } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ActiveToggleDropdownItem, DeleteDropdownItem } from "./_components/CourseActions";
 
 export default function AdminCoursesPage(){
     return (
@@ -63,7 +64,7 @@ async function CoursesTable(){
                             : (
                             <>
                             <span className="sr-only">Unavailable</span>
-                            <XCircle />
+                            <XCircle className="stroke-destructive"/>
                             </>
                         )}
                     </TableCell>
@@ -83,6 +84,9 @@ async function CoursesTable(){
                                 <DropdownMenuItem asChild>
                                     <Link href={`/admin/courses/${course.id}/edit`}>Edit</Link>
                                 </DropdownMenuItem>
+                                <ActiveToggleDropdownItem id={course.id} isAvailableForPurchase={course.isAvailableForPurchase}/>
+                                <DropdownMenuSeparator />
+                                <DeleteDropdownItem id={course.id} disabled={course._count.orders > 0}/>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>
