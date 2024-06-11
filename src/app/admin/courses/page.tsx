@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "../_components/PageHeader";
 import Link from "next/link";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import db from "@/db/db";
+import { CheckCircle2, MoreVertical, XCircle } from "lucide-react";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function AdminCoursesPage(){
     return (
@@ -17,7 +21,22 @@ export default function AdminCoursesPage(){
     )
 }
 
-function CoursesTable(){
+async function CoursesTable(){
+    const courses = await db.course.findMany({
+        select: {
+            id: true, 
+            name: true,
+            priceInVND: true, 
+            isAvailableForPurchase: true, 
+            filePath: true, 
+            imagePath: true,
+            _count: {select: {orders: true}}
+        },
+        orderBy: {name: "asc"}
+    })
+
+    if(courses.length === 0) return <p>No courses found</p>
+
     return <Table>
         <TableHeader>
             <TableRow>
@@ -31,9 +50,44 @@ function CoursesTable(){
                     <span className="sr-only">Actions</span>
                 </TableHead>
             </TableRow>
-            <TableBody>
-                
-            </TableBody>
         </TableHeader>
+        <TableBody>
+            {courses.map(course =>(
+                <TableRow key={course.id}>
+                    <TableCell>
+                        {course.isAvailableForPurchase ? (
+                        <>
+                            <span className="sr-only">Available</span>
+                            <CheckCircle2/> 
+                        </>)
+                            : (
+                            <>
+                            <span className="sr-only">Unavailable</span>
+                            <XCircle />
+                            </>
+                        )}
+                    </TableCell>
+                    <TableCell>{course.name}</TableCell>
+                    <TableCell>{formatCurrency(course.priceInVND)}</TableCell>
+                    <TableCell>{formatNumber(course._count.orders)}</TableCell>
+                    <TableCell>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <MoreVertical/>
+                                <span className="sr-only">Actions</span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem asChild>
+                                    <a download href={`/admin/courses/${course.id}/donwload`}>Download</a>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link href={`/admin/courses/${course.id}/edit`}>Edit</Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+            ))}
+        </TableBody>
     </Table>
 }
